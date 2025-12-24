@@ -6,17 +6,12 @@ import matplotlib
 from matplotlib import pyplot as plt
 import seaborn as sns
 
-library_path=input("what is your library.db database path? >>> ")
-jellyfin_path=input("what is your jellyfin.db database path? >>> ")
-conn=sqlite3.connect(jellyfin_path)
-cursor=conn.cursor()
-
 def get_yes_no(question):
     """Asks a question and forces a Y/N answer."""
     while True:
         # 1. Get input, strip spaces, and make it lowercase
         response = input(f"{question} (Y/N) >>> ").strip().lower()
-        
+
         # 2. Check the answer
         if response in ['y', 'yes']:
             return True
@@ -26,9 +21,16 @@ def get_yes_no(question):
             whatami=input("WHAT ARE YOU?! WHAT ARE YOU?! ***puts bread on either side of your head***")
             if whatami == "an idiot sandwich" or "An idiot sandwich" or "An Idiot Sandwich":
                  print("yes you are now go back to the input prompt and give me a legitimate Y or N")
-        
+
         # 3. If we get here, they messed up. The loop restarts.
         print("Invalid input. Please enter 'Y' or 'N'. DON'T be an idiot sandwich.")
+
+
+library_path=input("what is your library.db database path? >>> ")
+jellyfin_path=input("what is your jellyfin.db database path? >>> ")
+conn=sqlite3.connect(jellyfin_path)
+cursor=conn.cursor()
+
 
 print("connected to jellyfin database")
 time.sleep(0.5)
