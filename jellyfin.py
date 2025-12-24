@@ -6,6 +6,29 @@ import matplotlib
 from matplotlib import pyplot as plt
 import seaborn as sns
 
+Bold_SlowBlnk_Red = "\033[31;1;5m"
+Bold_Bright_White = "\033[97;1;4m"
+Cyan = "\033[96m"
+RESET="\033[0m"
+
+def countdown(seconds):
+    """Counts down on the same line."""
+    while seconds > 0:
+        # 1. Print the number
+        # end="\r" prevents the new line
+        # flush=True forces it to show up immediately
+        print(f"Melting Down In: {seconds} ", end="\r", flush=True)
+
+        # 2. Wait
+        time.sleep(1)
+
+        # 3. Decrement
+        seconds -= 1
+
+    # Optional: Clear the line when done
+    print(" " * 20, end="\r")
+    print(f"{Bold_SlowBlnk_Red}You're in trouble now!{RESET}")
+
 def get_yes_no(question):
     """Asks a question and forces a Y/N answer."""
     while True:
@@ -18,33 +41,71 @@ def get_yes_no(question):
         elif response in ['n', 'no']:
             return False
         elif response in ['idiot sandwich', 'Idiot sandwich', 'Idiot Sandwich']:
-            whatami=input("WHAT ARE YOU?! WHAT ARE YOU?! ***puts bread on either side of your head***")
-            if whatami == "an idiot sandwich" or "An idiot sandwich" or "An Idiot Sandwich":
-                 print("yes you are now go back to the input prompt and give me a legitimate Y or N")
-
+            print()
+            print(f"{Bold_SlowBlnk_Red}Chef Ramsay mode activated{RESET}")
+            print()
+            countdown(10)
+            whatami=input(f"WHAT ARE YOU?! {Bold_Bright_White}WHAT ARE YOU?!{RESET} ***puts bread on either side of your head*** >>> ")
+            if whatami.lower() == "an idiot sandwich" or "idiot sandwich" or "a idiot sandwich":
+                 print("yes you are now go back to the input prompt")
+                 print()
+                 time.sleep(2)
         # 3. If we get here, they messed up. The loop restarts.
-        print("Invalid input. Please enter 'Y' or 'N'. DON'T be an idiot sandwich.")
+        print(f"{Cyan}*Sigh*{RESET} Please enter 'Y' or 'N'. DON'T be an idiot sandwich.")
+
+def user_id_connect():
+    jellyfin_path=input("what is your jellyfin.db database path? >>> ")
+    conn=sqlite3.connect(jellyfin_path)
+    cursor=conn.cursor()
+
+    print("connected to jellyfin database")
+    time.sleep(0.5)
+
+    cursor.execute("SELECT Username, InternalId FROM users")
+    username_map = {}
+    for row in cursor:
+        key, value = row  # Unpacks the tuple (name, id)
+        username_map[key]=value
+    conn.close()
+
+    print("username/userid info pulled and mapped")
+    time.sleep(0.2)
+    return username_map
+
+def library_db_query():
+    library_path=input("what is your library.db database path? >>> ")
+    conn=sqlite3.connect(library_path)
+
+    print("Jellyfin library database connected.")
+    time.sleep(0.3)
+
+    cursor=conn.cursor()
+
+    #debug code
+    #print("cursor object created")
+
+    # We use a multi-line f-string to make the complex query readable
+    query = f"""
+    SELECT
+        T.Name,
+        U.PlayCount,
+        U.LastPlayedDate,
+        U.isFavorite,
+        U.Played
+    FROM UserDatas U
+    JOIN TypedBaseItems T ON U.key = T.UserDataKey
+    WHERE U.UserId = {username_map[selected_user]}
+    AND U.PlayCount > 0
+    """
 
 
-library_path=input("what is your library.db database path? >>> ")
-jellyfin_path=input("what is your jellyfin.db database path? >>> ")
-conn=sqlite3.connect(jellyfin_path)
-cursor=conn.cursor()
+    cursor.execute(query)
 
+    selected_data = cursor.fetchall()
+    conn.close()
+    return selected_data
 
-print("connected to jellyfin database")
-time.sleep(0.5)
-
-cursor.execute("SELECT Username, InternalId FROM users")
-username_map = {}
-for row in cursor:
-    key, value = row  # Unpacks the tuple (name, id)
-    username_map[key]=value
-conn.close()
-
-print("username/userid info pulled and mapped")
-time.sleep(0.2)
-
+username_map = user_id_connect() #call the function
 selected_user=input("What user would you like to query? >>> ")
 try:
     print(f"The Usernames associated id is: {username_map[selected_user]}")
@@ -52,40 +113,12 @@ except KeyError:
     print("That user doesn't exist dumbass. Did you spell it right? Hukked on Foniks Werkked fer U!")
     selected_user=input("what user would you like to recommend? >>> ")
 
-conn=sqlite3.connect(library_path)
-
-print("Jellyfin library database connected.")
-time.sleep(0.3)
-
-cursor=conn.cursor()
-
-#debug code
-#print("cursor object created")
-
-# We use a multi-line f-string to make the complex query readable
-query = f"""
-SELECT 
-    T.Name, 
-    U.PlayCount, 
-    U.LastPlayedDate, 
-    U.isFavorite,
-    U.Played
-FROM UserDatas U
-JOIN TypedBaseItems T ON U.key = T.UserDataKey
-WHERE U.UserId = {username_map[selected_user]}
-  AND U.PlayCount > 0
-"""
-
-
-cursor.execute(query)
-
-selected_data = cursor.fetchall()
+library_data=library_db_query()
 # Define your column names manually
 cols = ['Title', 'Plays', 'Last Played', 'isFavorite', 'Played']
 
 # Create the DataFrame
-df = pd.DataFrame(selected_data, columns=cols)
-conn.close()
+df = pd.DataFrame(library_data, columns=cols)
 # Clean the 'Plays' column
 df['Plays'] = df['Plays'].fillna(0)
 df['Plays'] = df['Plays'].astype('int32')
