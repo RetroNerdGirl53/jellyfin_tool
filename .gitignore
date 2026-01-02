@@ -1,3 +1,18 @@
 
 library.db
 jellyfin.db
+build/jellytool/Analysis-00.toc
+build/jellytool/base_library.zip
+build/jellytool/EXE-00.toc
+build/jellytool/jellytool.pkg
+build/jellytool/localpycs/pyimod01_archive.pyc
+build/jellytool/localpycs/pyimod02_importers.pyc
+build/jellytool/localpycs/pyimod03_ctypes.pyc
+build/jellytool/localpycs/struct.pyc
+build/jellytool/PKG-00.toc
+build/jellytool/PYZ-00.pyz
+build/jellytool/PYZ-00.toc
+build/jellytool/warn-jellytool.txt
+build/jellytool/xref-jellytool.html
+dist/jellytool
+jellytool.spec
