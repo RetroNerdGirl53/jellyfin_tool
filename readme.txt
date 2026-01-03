@@ -1,6 +1,6 @@
 Jellyfin User Management Tool (CLI)
 
-This tool provides a high-performance command-line interface for managing Jellyfin users based on their activity levels. It allows administrators to automatically suspend or delete users who have been inactive for a specified number of days, utilizing direct database queries for maximum speed—even on servers with 100,000+ users.
+This tool provides a high-performance command-line interface for managing Jellyfin users based on their activity levels. It allows administrators to automatically suspend or delete users who have been inactive for a specified number of days, utilizing direct database queries for maximum speed—even on servers with high user count as compared to using API calls alone.
 Important: Database Syncing
 
 You must restart your Jellyfin server before running this tool if you want the most up-to-date activity data. Jellyfin often holds database writes in memory; a restart forces the server to commit all "Last Seen" and "Playback" data to the .db files on disk, ensuring the script reads accurate information.
